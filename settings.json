@@ -1,0 +1,12 @@
+{
+  "host": "irc.snoonet.org",
+  "port": 6697,
+  "SSL": true,
+  "SASL": {
+
+  },
+  "password": "",
+  "nick": "dissbot",
+  "ident": "dissbot",
+  "realname": "dissbot"
+}

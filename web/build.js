@@ -80,6 +80,8 @@
 	      stats: []
 	    };
 
+	    _this.timer = null;
+
 	    _this.socket = (0, _socket2.default)();
 
 	    _this.socket.on('stats', function (stats) {
@@ -96,6 +98,22 @@
 	      return {
 	        socket: this.socket
 	      };
+	    }
+	  }, {
+	    key: 'componentDidMount',
+	    value: function componentDidMount() {
+	      var _this2 = this;
+
+	      this.socket.emit('stats');
+
+	      this.timer = setInterval(function () {
+	        return _this2.socket.emit('stats');
+	      }, 5000);
+	    }
+	  }, {
+	    key: 'componentWillUnmount',
+	    value: function componentWillUnmount() {
+	      clearInterval(this.timer);
 	    }
 	  }, {
 	    key: 'render',

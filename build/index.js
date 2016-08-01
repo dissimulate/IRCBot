@@ -1,101 +1,46 @@
-/******/ (function(modules) { // webpackBootstrap
-/******/ 	// The module cache
-/******/ 	var installedModules = {};
+'use strict'
 
-/******/ 	// The require function
-/******/ 	function __webpack_require__(moduleId) {
+const express = require('express')
+const app = require('express')()
+const http = require('http').Server(app)
+const io = require('socket.io')(http)
 
-/******/ 		// Check if module is in cache
-/******/ 		if(installedModules[moduleId])
-/******/ 			return installedModules[moduleId].exports;
+const PORT = 4000
 
-/******/ 		// Create a new module (and put it into the cache)
-/******/ 		var module = installedModules[moduleId] = {
-/******/ 			exports: {},
-/******/ 			id: moduleId,
-/******/ 			loaded: false
-/******/ 		};
+const events = require('events')
 
-/******/ 		// Execute the module function
-/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+class Bot extends events.EventEmitter {
+  constructor () {
+    super()
 
-/******/ 		// Flag the module as loaded
-/******/ 		module.loaded = true;
+    this.settings = require('../settings.json')
+  }
+}
 
-/******/ 		// Return the exports of the module
-/******/ 		return module.exports;
-/******/ 	}
+const bot = new Bot()
 
+/* -- */
 
-/******/ 	// expose the modules object (__webpack_modules__)
-/******/ 	__webpack_require__.m = modules;
+io.on('connection', (socket) => {
+  console.log('User connected.')
 
-/******/ 	// expose the module cache
-/******/ 	__webpack_require__.c = installedModules;
+  socket.on('stats', (data) => {
+    socket.emit('stats', [{name: 'test', value: bot.settings.test}])
+  })
 
-/******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "";
+  socket.on('disconnect', () => {
+    console.log('User disconnected.')
+  })
+})
 
-/******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(0);
-/******/ })
-/************************************************************************/
-/******/ ([
-/* 0 */
-/***/ function(module, exports, __webpack_require__) {
+/* -- */
 
-	'use strict';
+app.use(express.static('web'))
 
-	var express = __webpack_require__(1);
-	var app = __webpack_require__(1)();
-	var http = __webpack_require__(2).Server(app);
-	var io = __webpack_require__(3)(http);
+app.get('/', (req, res) => {
+  res.sendfile('index.html')
+})
 
-	/* -- */
-
-	function sendStats(socket) {
-	  socket.emit('stats', [{ name: 'test', value: 123 }]);
-	}
-
-	io.on('connection', function (socket) {
-	  console.log('User connected.');
-
-	  sendStats(socket);
-
-	  socket.on('disconnect', function () {
-	    console.log('User disconnected.');
-	  });
-	});
-
-	/* -- */
-
-	app.use(express.static('web'));
-
-	app.get('/', function (req, res) {
-	  res.sendfile('index.html');
-	});
-
-	http.listen(3000, function () {
-	  console.log('listening on *:3000');
-	});
-
-/***/ },
-/* 1 */
-/***/ function(module, exports) {
-
-	module.exports = require("express");
-
-/***/ },
-/* 2 */
-/***/ function(module, exports) {
-
-	module.exports = require("http");
-
-/***/ },
-/* 3 */
-/***/ function(module, exports) {
-
-	module.exports = require("socket.io");
-
-/***/ }
-/******/ ]);
+http.listen(PORT, () => {
+  console.log(`listening on *:${PORT}`)
+})

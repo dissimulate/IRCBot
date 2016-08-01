@@ -11,6 +11,8 @@ class App extends React.Component {
       stats: []
     }
 
+    this.timer = null
+
     this.socket = io()
 
     this.socket.on('stats', (stats) => {
@@ -24,6 +26,19 @@ class App extends React.Component {
     return {
       socket: this.socket
     }
+  }
+
+  componentDidMount () {
+    this.socket.emit('stats')
+
+    this.timer = setInterval(
+      () => this.socket.emit('stats'),
+      5000
+    )
+  }
+
+  componentWillUnmount () {
+    clearInterval(this.timer)
   }
 
   render () {
